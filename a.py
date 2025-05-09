@@ -1,99 +1,96 @@
 import heapq
 
-def a_estrela(labirinto, inicio, fim):
-    def heuristica(a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+def encontrar_inicio_fim(labirinto):
+    inicio = fim = None
+    for i, linha in enumerate(labirinto):
+        for j, valor in enumerate(linha):
+            if valor == 'S':
+                inicio = (i, j)
+            elif valor == 'E':
+                fim = (i, j)
+    return inicio, fim
 
-    fila_aberta = []
-    heapq.heappush(fila_aberta, (0, inicio))  
-    veio_de = {}  
-    custo_g = {inicio: 0}  
-    custo_f = {inicio: heuristica(inicio, fim)} 
+def heuristica(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-    while fila_aberta:
-        _, atual = heapq.heappop(fila_aberta)
+def a_estrela(labirinto):
+    inicio, fim = encontrar_inicio_fim(labirinto)
+    if not inicio or not fim:
+        return "Erro: 'S' ou 'E' não encontrados."
+
+    linhas, colunas = len(labirinto), len(labirinto[0])
+    fila = []
+    heapq.heappush(fila, (0, inicio))
+    
+    veio_de = {inicio: None}
+    custo_ate_agora = {inicio: 0}
+
+    while fila:
+        _, atual = heapq.heappop(fila)
 
         if atual == fim:
             caminho = []
-            while atual in veio_de:
+            while atual:
                 caminho.append(atual)
                 atual = veio_de[atual]
-            caminho.append(inicio)
-            return caminho[::-1]  
+            caminho.reverse()
+            return caminho
 
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]: 
+        for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]:
             vizinho = (atual[0] + dx, atual[1] + dy)
+            if 0 <= vizinho[0] < linhas and 0 <= vizinho[1] < colunas:
+                if labirinto[vizinho[0]][vizinho[1]] != '1':
+                    novo_custo = custo_ate_agora[atual] + 1
+                    if vizinho not in custo_ate_agora or novo_custo < custo_ate_agora[vizinho]:
+                        custo_ate_agora[vizinho] = novo_custo
+                        prioridade = novo_custo + heuristica(fim, vizinho)
+                        heapq.heappush(fila, (prioridade, vizinho))
+                        veio_de[vizinho] = atual
 
-            if 0 <= vizinho[0] < len(labirinto) and 0 <= vizinho[1] < len(labirinto[0]) and labirinto[vizinho[0]][vizinho[1]] != 1:
-                custo_g_tentativo = custo_g[atual] + 1  
+    return "Sem solução"
 
-                if vizinho not in custo_g or custo_g_tentativo < custo_g[vizinho]:
-                    veio_de[vizinho] = atual
-                    custo_g[vizinho] = custo_g_tentativo
-                    custo_f[vizinho] = custo_g_tentativo + heuristica(vizinho, fim)
-                    heapq.heappush(fila_aberta, (custo_f[vizinho], vizinho))
+def destacar_caminho(labirinto, caminho):
+    labirinto_copia = [linha[:] for linha in labirinto]
+    for i, j in caminho[1:-1]:
+        labirinto_copia[i][j] = '*'
+    return labirinto_copia
 
-    return None
-
-def imprimir_labirinto_com_caminho(labirinto, caminho):
-    labirinto_com_caminho = [linha[:] for linha in labirinto]  
-    for x, y in caminho:
-        if labirinto_com_caminho[x][y] == 0:  
-            labirinto_com_caminho[x][y] = '*'
-    for linha in labirinto_com_caminho:
-        print(' '.join(str(celula) for celula in linha))
-
-def processar_labirinto(labirinto):
-    inicio, fim = None, None
-    labirinto_numerico = []
-    for i, linha in enumerate(labirinto):
-        nova_linha = []
-        for j, celula in enumerate(linha):
-            if celula == 'S':
-                inicio = (i, j)
-                nova_linha.append(0)
-            elif celula == 'E':
-                fim = (i, j)
-                nova_linha.append(0)
-            elif celula == 0 or celula == 1:
-                nova_linha.append(celula)
-            else:
-                raise ValueError("Labirinto contém valores inválidos.")
-        labirinto_numerico.append(nova_linha)
-    if inicio is None or fim is None:
-        raise ValueError("Labirinto deve conter um ponto inicial 'S' e um ponto final 'E'.")
-    return labirinto_numerico, inicio, fim
+def exibir_labirinto(labirinto):
+    for linha in labirinto:
+        print(' '.join(str(c) for c in linha))
 
 labirinto = [
-    ['S', 0, 1, 0, 0],
-    [0, 0, 1, 0, 1],
-    [0, 1, 0, 0, 0],
-    [1, 0, 0, 'E', 1]
+    ['S', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+    ['0', '0', '1', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'],
+    ['1', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0', '1', '0'],
+    ['1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'],
+    ['1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '1', '1', '1', '1', '1', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '0', '1', '1', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '1', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '1', '0', '1', '0', '1', '0'],
+    ['1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'],
+    ['1', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0', '0', '1', '0', '1', '1', '1', '0', '0', 'E']
 ]
 
-labirinto_numerico, inicio, fim = processar_labirinto(labirinto)
+print("Labirinto original:")
+exibir_labirinto(labirinto)
 
-caminho = a_estrela(labirinto_numerico, inicio, fim)
-
-if caminho:
-    print("Caminho encontrado:")
+caminho = a_estrela(labirinto)
+if isinstance(caminho, str):
     print(caminho)
-    print("\nLabirinto com o caminho:")
-    imprimir_labirinto_com_caminho(labirinto_numerico, caminho)
 else:
-    print("Nenhum caminho encontrado.")
-
-    if __name__ == "__main__":
-        try:
-            labirinto_numerico, inicio, fim = processar_labirinto(labirinto)
-            caminho = a_estrela(labirinto_numerico, inicio, fim)
-
-            if caminho:
-                print("Caminho encontrado:")
-                print(caminho)
-                print("\nLabirinto com o caminho:")
-                imprimir_labirinto_com_caminho(labirinto_numerico, caminho)
-            else:
-                print("Nenhum caminho encontrado.")
-        except ValueError as e:
-            print(f"Erro: {e}")
+    print("\nMenor caminho (em coordenadas):")
+    print(['s' if (i == caminho[0]) else 'e' if (i == caminho[-1]) else i for i in caminho])
+    print("\nLabirinto com o caminho destacado:")
+    labirinto_destacado = destacar_caminho(labirinto, caminho)
+    exibir_labirinto(labirinto_destacado)
