@@ -57,6 +57,29 @@ Este projeto foi desenvolvido na versão 3.13.2 do Python.
 ### exibir_labirinto(labirinto)
 - Exibe o labirinto no terminal de forma legível.
 
+## Heurística Utilizada
+
+Neste projeto, utilizamos a **distância de Manhattan** como heurística para o algoritmo A*. Ela é definida como:
+```
+h(n) = |x₁ - x₂| + |y₁ - y₂|
+```
+
+Sendo `(x₁, y₁)` as coordenadas do ponto atual e `(x₂, y₂)` as coordenadas do ponto final.
+
+### Por que a distância de Manhattan?
+
+A escolha da distância de Manhattan se deve às características do ambiente do labirinto:
+
+- **Movimentos permitidos**: apenas em direções ortogonais (cima, baixo, esquerda, direita). Não há movimento diagonal.
+- **Admissibilidade**: a heurística nunca superestima o custo real até o objetivo, o que garante que o A* encontrará o caminho mais curto.
+- **Consistência (monotonicidade)**: para qualquer par de nós `n` e `n'`, vale:
+  
+```
+h(n) ≤ custo(n, n') + h(n')
+
+```
+Isso garante que o algoritmo não precisará reavaliar nós já expandidos
+##
 ### Exemplo de Entrada
 
 ```bash
