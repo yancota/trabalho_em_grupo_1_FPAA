@@ -1,44 +1,89 @@
-# Nome do Projeto
+# Resolução de Labirinto com A*
+
+### Alunos
+- Lucas Henrique Chaves de Barros
+- Yan Mariz Magalhães Cota
 
 ## Descrição
 
-<!-- Breve descrição do projeto -->
+Implementação do algoritmo A* para encontrar o menor caminho entre dois pontos em um labirinto representado por uma matriz. O labirinto contém obstáculos e permite apenas movimentos ortogonais (cima, baixo, esquerda, direita).
 
 ## Introdução
 
-<!-- Introdução ao problema resolvido: labirinto 2D com Algoritmo A* -->
+O algoritmo A* é uma técnica de busca heurística que combina:
+ - Custo acumulado do caminho percorrido desde o ponto de início.
+ - Estimativa da distância restante até o destino, calculada por uma heurística.
+Neste projeto, usamos a distância de Manhattan como heurística, adequada para ambientes com movimento apenas horizontal e vertical. Essa abordagem garante um caminho ótimo se a heurística for admissível, como é o caso aqui.
 
-## Configuração do Ambiente
+A estratégia do A* permite encontrar o menor caminho mesmo em labirintos complexos com obstáculos.
 
-### Pré-requisitos
+## Como rodar o projeto
 
-<!-- Listar dependências e ferramentas necessárias -->
+Instalar a última versão do python disponível em: https://www.python.org/downloads/
 
-### Instalação
+Necessário rodar o seguinte comando no terminal:
+```bash
+https://github.com/yancota/CaminhoHamiltoniano.git
+```
 
-<!-- Passos para instalar e configurar o projeto -->
+Rodar o seguinte comando no terminal:
+```bash
+python main.py
+```
 
-## Execução
-
-<!-- Instruções para executar o projeto -->
+## Versão do Python
+Este projeto foi desenvolvido na versão 3.13.2 do Python.
 
 ## Funcionamento do Algoritmo A*
 
-### Cálculo do Custo
+### Funções
 
-<!-- Explicação sobre o custo do caminho percorrido -->
+### encontrar_inicio_fim(labirinto)
+- Localiza as coordenadas de início ('S') e fim ('E') no labirinto.
 
-### Heurística: Distância de Manhattan
+### heuristica(a, b)
+- Calcula a distância de Manhattan entre dois pontos, utilizada como heurística.
 
-<!-- Explicação sobre a heurística utilizada -->
+### a_estrela(labirinto)
+- Implementa o algoritmo A*, utilizando:
+ - g(n): custo do caminho percorrido desde o início até o ponto n.
+ - h(n): heurística da distância de Manhattan até o ponto final.
+ - f(n) = g(n) + h(n): custo estimado total do caminho passando por n.
+- O algoritmo mantém uma fila de prioridade com os caminhos mais promissores, e expande os vizinhos válidos (não obstáculos) buscando sempre o menor f(n).
 
-### Combinação dos Fatores
+### destacar_caminho(labirinto, caminho)
+- Marca o caminho encontrado com * na matriz do labirinto.
 
-<!-- Como o custo e a heurística são combinados -->
-
-## Exemplos
+### exibir_labirinto(labirinto)
+- Exibe o labirinto no terminal de forma legível.
 
 ### Exemplo de Entrada
 
-```txt
-<!-- Inserir exemplo de entrada do labirinto -->
+```bash
+labirinto = [
+    ['S', '0', '1'],
+    ['1', '0', '1'],
+    ['1', '0', 'E']
+]
+```
+
+### Exemplo de Saída
+
+Labirinto Original
+```bash
+S 0 1
+1 0 1
+1 0 E
+```
+
+Menor Caminho Encontrado
+```bash
+['s', (0, 1), (1, 1), (2, 1), 'e']
+```
+
+Labirinto com Caminho Destacado
+```bash
+S * 1
+1 * 1
+1 * E
+```
